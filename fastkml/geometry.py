@@ -334,6 +334,15 @@ class Geometry(_BaseObject):
             coords = self._get_coordinates(lr)
             return LinearRing(coords)
 
+    def _get_linear_rings(self, element):
+        # LinearRing in polygon
+        lrs = element.findall('%sLinearRing' % self.ns)
+        rings = []
+        for lr in lrs:
+            coords = self._get_coordinates(lr)
+            rings.append(LinearRing(coords))
+        return rings
+
     def _get_geometry(self, element):
         # Point, LineString,
         # Polygon, LinearRing
@@ -352,7 +361,7 @@ class Geometry(_BaseObject):
             inner_boundaries = element.findall('%sinnerBoundaryIs' % self.ns)
             ibs = []
             for inner_boundary in inner_boundaries:
-                ibs.append(self._get_linear_ring(inner_boundary))
+                ibs += self._get_linear_rings(inner_boundary)
             return Polygon(ob, ibs)
         if element.tag == ('%sLinearRing' % self.ns):
             coords = self._get_coordinates(element)
